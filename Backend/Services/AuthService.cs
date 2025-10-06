@@ -1,0 +1,269 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using LibraryAPI.Data;
+using LibraryAPI.Interfaces;
+using LibraryAPI.Models.Domain;
+using LibraryAPI.Models.DTO.Auth;
+
+namespace LibraryAPI.Services
+{
+    public class AuthService : IAuthSerivce
+    {
+        private readonly IConfiguration _config;
+        private readonly DataContext _context;
+
+        public AuthService(IConfiguration config, DataContext context)
+        {
+            _config = config;
+            _context = context;
+        }
+
+        public async Task<UserRegisterResDTO?> CreateNewUserAsync(UserRegisterReqDTO req)
+        {
+            string username = req.Username;
+            string email = req.Email;
+
+            var existEmail = await _context.Users.FirstOrDefaultAsync((user) => user.Email == email);
+            if (existEmail != null)
+            {
+                throw new Exception("This email exit");
+            }
+
+            var existUsername = await _context.Users.FirstOrDefaultAsync((user) => user.Username == username);
+            if (existUsername != null)
+            {
+
+                throw new Exception("This username is already taken");
+            }
+
+            Role role;
+
+            if (req.Role != null && req.Role == UserRole.Admin)
+            {
+                if (req.AdminRoleKey == null) throw new Exception("Admin role key is required");
+
+                var adminRole = await _context.Roles.FirstOrDefaultAsync(role => role.RoleKey == req.AdminRoleKey) ?? throw new Exception("Invalid admin role key");
+                role = adminRole;
+
+            }
+            else
+            {
+                var userRole = await _context.Roles.FirstOrDefaultAsync(role => role.UserRole == UserRole.User);
+
+                role = userRole!;
+            }
+
+            CreatePasswordHash(req.Password, out byte[] passwordHash, out byte[] passwordSalt);
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                CreatedAt = DateTime.UtcNow,
+                Username = req.Username,
+                Email = req.Email,
+                Role = role,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
+            };
+
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+
+            var newUserResponse = new UserRegisterResDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+
+            };
+
+            return newUserResponse;
+        }
+        public async Task<RefreshTokenResDTO?> GenerateRefreshTokenAsync(RefreshTokenReqDTO req)
+        {
+            var principal = GetTokenPrincipal(req.Token);
+            var username = principal?.Identity?.Name;
+
+            if (username == null)
+            {
+                return null;
+            }
+
+            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(user => user.Username == username);
+
+            if (user is null || user.RefreshToken != req.RefreshToken || user.RefreshTokenExpires < DateTime.Now)
+                return null;
+
+            var tokenExpires = DateTime.Now.AddMinutes(60);
+            string token = GenerateJwtToken(tokenExpires, user.Username, user.Email, user.Role.UserRole);
+
+            string refreshToken = CreateRandomToken();
+
+            var refresTokenExpires = DateTime.Now.AddDays(1);
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpires = refresTokenExpires;
+
+            await _context.SaveChangesAsync();
+
+            return new RefreshTokenResDTO
+            {
+                Token = token,
+                RefreshToken = refreshToken,
+                TokenExpires = tokenExpires,
+                RefreshTokenExpires = refresTokenExpires
+            };
+        }
+
+        public async Task<UserLoginResDTO?> LoginUserAsync(UserLoginReqDTO req)
+        {
+            string username = req.Username;
+
+            var userExist = await _context.Users
+                                 .Include(u => u.Role)
+                                 .FirstOrDefaultAsync(user => user.Username == username) ?? throw new Exception("User not found");
+
+            if (!VerifyPasswordHash(req.Password, userExist.PasswordHash, userExist.PasswordSalt))
+                throw new Exception("Password is incorrect.");
+
+
+            var tokenExpires = DateTime.Now.AddMinutes(60);
+            string token = GenerateJwtToken(tokenExpires, userExist.Username, userExist.Email, userExist.Role.UserRole);
+
+            string refreshToken = CreateRandomToken();
+            var refresTokenExpires = DateTime.Now.AddDays(1);
+
+            userExist.RefreshToken = refreshToken;
+            userExist.RefreshTokenExpires = refresTokenExpires;
+
+            await _context.SaveChangesAsync();
+
+            return new UserLoginResDTO
+            {
+                Id = userExist.Id,
+                Email = userExist.Email,
+                Username = userExist.Username,
+                FirstName = userExist.FirstName,
+                LastName = userExist.LastName,
+                JSONWebToken = token,
+                JSONWebTokenExpires = tokenExpires,
+                RefreshToken = refreshToken,
+                RefreshTokenExpires = refresTokenExpires,
+                Role = userExist.Role.UserRole,
+            };
+        }
+
+        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        {
+            using var hmac = new HMACSHA512();
+            passwordSalt = hmac.Key;
+            passwordHash = hmac
+                .ComputeHash(Encoding.UTF8.GetBytes(password));
+        }
+
+        private static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        {
+            using var hmac = new HMACSHA512(passwordSalt);
+            var computedHash = hmac
+                .ComputeHash(Encoding.UTF8.GetBytes(password));
+            return computedHash.SequenceEqual(passwordHash);
+        }
+
+        private static string CreateRandomToken() =>
+            Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
+        
+        private string GenerateJwtToken(DateTime tokenExpires, string username, string email, UserRole userRole)
+        {
+            string role = userRole == 0 ? "Admin" : "User";
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>
+            {
+                new (ClaimTypes.Name,username),
+                new (ClaimTypes.Email,email),
+                new (ClaimTypes.Role,role)
+            };
+
+            var secToken = new JwtSecurityToken(
+              _config["Jwt:Issuer"],
+              _config["Jwt:Audience"],
+              claims,
+              null,
+              expires: tokenExpires,
+              signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(secToken);
+        }
+
+        private ClaimsPrincipal? GetTokenPrincipal(string token)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var validation = new TokenValidationParameters
+            {
+                IssuerSigningKey = securityKey,
+                ValidateLifetime = false,
+                ValidateActor = false,
+                ValidateIssuer = false,
+                ValidateAudience = false,
+            };
+            return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
+        }
+
+        public async Task<GetAllUsersResDTO> GetAllUsersAsync()
+        {
+            var users = await _context.Users
+             .Include(u => u.Role)
+             .Where(u => u.Role.UserRole == UserRole.User)
+             .Select(user => new UserDTO
+             {
+                 Id = user.Id,
+                 CreatedAt = user.CreatedAt,
+                 Email = user.Email,
+                 Username = user.Username,
+                 FirstName = user.FirstName,
+                 LastName = user.LastName
+             })
+             .ToListAsync();
+
+            return new GetAllUsersResDTO
+            {
+                Users = users,
+                Amount = users.Count
+            };
+        }
+
+        public async Task<UpdateUserResDTO?> UpdateUserAsync(Guid id, UpdateUserReqDTO req)
+        {
+            var user = await _context.Users.FindAsync(id) ?? throw new Exception("User not found");
+            var existUsername = await _context.Users.FirstOrDefaultAsync((user) => user.Username == req.Username);
+
+            if (existUsername != null)
+                throw new Exception("This username is already taken");
+
+            user.Username = req.Username;
+            user.FirstName = req.FirstName;
+            user.LastName = req.LastName;
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            var updatedUser = new UpdateUserResDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                FirstName = user.FirstName,
+                LastName = user.LastName
+            };
+
+            return updatedUser;
+        }
+    }
+}
+

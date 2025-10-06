@@ -1,0 +1,94 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using LibraryAPI.Interfaces;
+using LibraryAPI.Models.DTO.Authors;
+using LibraryAPI.Models.DTO.Books;
+using LibraryAPI.Models.DTO.Categories;
+using LibraryAPI.Services;
+
+namespace LibraryAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class BooksController : ControllerBase
+    {
+
+        private readonly IBooksService _booksService;
+
+        public BooksController(IBooksService booksService)
+        {
+           _booksService = booksService;
+        }
+
+
+        [HttpGet()]
+        [Authorize]
+        public async Task<IActionResult> GetAll()
+        {
+            var res = await _booksService.GetAllBooksAsync();
+
+            return Ok(res);
+        }
+
+        [HttpGet]
+        [Route("{id:Guid}")]
+        [Authorize]
+        public async Task<IActionResult> GetBookDetails([FromRoute] Guid id)
+        {
+            var res = await _booksService.GetBookDetailsAsync(id);
+
+            if (res == null) return BadRequest("Book not found");
+
+            return Ok(res);
+        }
+
+
+        [HttpPost("UpdateBook")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> Update([FromForm]  UpdateBookReqDTO req)
+        {
+            try
+            {
+
+            var res = await _booksService.UpdateBookAsync(req);
+
+                return Ok(res);
+
+            }catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
+        [HttpPost("AddBook")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> AddBook([FromForm] AddBookReqDTO req)
+        {
+            try
+            {
+                var res= await  _booksService.AddBookAsync(req);
+
+                return Ok(res); 
+            }catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+
+        [HttpDelete()]
+        [Route("{id:Guid}")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            var res = await _booksService.DeleteBookResAsync(id);
+
+            if (res == null) return BadRequest("Book not found");
+
+            return Ok(res);
+        }
+    }
+}
