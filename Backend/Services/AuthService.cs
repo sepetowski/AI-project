@@ -84,41 +84,39 @@ namespace LibraryAPI.Services
 
             return newUserResponse;
         }
-        public async Task<RefreshTokenResDTO?> GenerateRefreshTokenAsync(RefreshTokenReqDTO req)
+        public async Task<RefreshTokenResDTO?> GenerateRefreshTokenAsync(string refreshToken)
         {
-            var principal = GetTokenPrincipal(req.Token);
-            var username = principal?.Identity?.Name;
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
 
-            if (username == null)
-            {
+            if (user == null)
                 return null;
-            }
 
-            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(user => user.Username == username);
-
-            if (user is null || user.RefreshToken != req.RefreshToken || user.RefreshTokenExpires < DateTime.Now)
+            if (!user.RefreshTokenExpires.HasValue || user.RefreshTokenExpires.Value <= DateTime.Now)
                 return null;
+
 
             var tokenExpires = DateTime.Now.AddMinutes(60);
-            string token = GenerateJwtToken(tokenExpires, user.Username, user.Email, user.Role.UserRole);
+            var newAccessToken = GenerateJwtToken(tokenExpires, user.Username, user.Email, user.Role.UserRole);
 
-            string refreshToken = CreateRandomToken();
+            var newRefreshToken = CreateRandomToken();
+            var newRefreshTokenExpires = DateTime.Now.AddDays(1);
 
-            var refresTokenExpires = DateTime.Now.AddDays(1);
-
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpires = refresTokenExpires;
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpires = newRefreshTokenExpires;
 
             await _context.SaveChangesAsync();
 
             return new RefreshTokenResDTO
             {
-                Token = token,
-                RefreshToken = refreshToken,
+                Token = newAccessToken,
                 TokenExpires = tokenExpires,
-                RefreshTokenExpires = refresTokenExpires
+                RefreshToken = newRefreshToken,
+                RefreshTokenExpires = newRefreshTokenExpires
             };
         }
+
 
         public async Task<UserLoginResDTO?> LoginUserAsync(UserLoginReqDTO req)
         {

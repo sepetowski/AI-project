@@ -6,7 +6,7 @@ namespace LibraryAPI.Interfaces
     {
         Task<UserRegisterResDTO?> CreateNewUserAsync(UserRegisterReqDTO req);
         Task<UserLoginResDTO?> LoginUserAsync(UserLoginReqDTO req);
-        Task<RefreshTokenResDTO?> GenerateRefreshTokenAsync(RefreshTokenReqDTO req);
+        Task<RefreshTokenResDTO?> GenerateRefreshTokenAsync(string refreshToken);
         Task<GetAllUsersResDTO> GetAllUsersAsync();
         Task<UpdateUserResDTO?> UpdateUserAsync(Guid id,UpdateUserReqDTO req);
     }
