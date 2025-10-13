@@ -1,7 +1,8 @@
 import { defineNuxtConfig } from 'nuxt/config';
 
 export default defineNuxtConfig({
-	modules: ['@sidebase/nuxt-auth'],
+	modules: ['@sidebase/nuxt-auth', '@nuxt/ui'],
+	css: ['~/css/main.css'],
 
 	runtimeConfig: {
 		dotnet: {
