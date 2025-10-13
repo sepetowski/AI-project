@@ -1,5 +1,3 @@
-import { createBaseApiUrl } from '~~/server/utils/CreateBaseApiUrl';
-
 export default defineEventHandler(async (event) => {
 	const { refreshToken } = await readBody<{ refreshToken?: string }>(event);
 
