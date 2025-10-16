@@ -21,6 +21,9 @@ export default defineEventHandler(async (event) => {
 	try {
 		return await $fetch(createBaseApiUrl('auth/register'), { method: 'POST', body });
 	} catch (err: any) {
-		return err;
+		throw createError({
+			statusCode: err?.status || err?.response?.status || 500,
+			statusMessage: err?.data || 'Registration failed',
+		});
 	}
 });
