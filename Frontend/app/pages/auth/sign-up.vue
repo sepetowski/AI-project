@@ -17,7 +17,7 @@ import SignupForm from '~/components/auth/SignupForm.vue';
 			<template #footer>
 				<div class="text-center text-sm">
 					Already have an account?
-					<NuxtLink to="/login" class="text-primary-600 hover:underline">Log in</NuxtLink>
+					<NuxtLink to="/auth/sign-in" class="text-primary-600 hover:underline">Log in</NuxtLink>
 				</div>
 			</template>
 		</UCard>

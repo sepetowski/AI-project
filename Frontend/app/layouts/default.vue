@@ -58,7 +58,12 @@ const items = computed<NavigationMenuItem[]>(() => [
 						class="w-full"
 						color="neutral"
 						variant="soft"
-						@click="signOut({ redirect: false })"
+						@click="
+							signOut({
+								external: true,
+								callbackUrl: `http://localhost:3000`,
+							})
+						"
 					>
 						Logout
 					</UButton>

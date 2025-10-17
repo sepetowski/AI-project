@@ -1,33 +1,50 @@
 <script setup lang="ts">
+import { onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 
-watch(
-	() => route.query,
-	async (query) => {
-		if (query.new === 'true' && query.username) {
-			toast.clear();
-			toast.add({
-				title: `Welcome on board ${query.username}`,
-				description: 'You have been registered',
-				color: 'success',
-				icon: 'i-heroicons-check-circle',
-			});
-			await new Promise((resolve) => setTimeout(resolve, 300));
+function handleAuthQuery(query: Record<string, any>) {
+	if (query.new && query.username) {
+		const title =
+			query.new === 'true'
+				? `Welcome on board ${query.username}`
+				: `Welcome back ${query.username}`;
+		const description =
+			query.new === 'true' ? 'You have been registered' : 'You have been logged in';
+
+		toast.clear();
+		toast.add({
+			title,
+			description,
+			color: 'success',
+			icon: 'i-heroicons-check-circle',
+		});
+
+		// clear query params after a short delay
+		setTimeout(() => {
 			router.replace({ query: {} });
-		}
-	},
-	{ immediate: true }
-);
+		}, 300);
+	}
+}
+
+// Run once on client after mount
+onMounted(() => {
+	handleAuthQuery(route.query as any);
+
+	// Then watch for changes (client only)
+	watch(
+		() => route.query,
+		(q) => handleAuthQuery(q as any),
+		{ immediate: false, deep: false }
+	);
+});
 
 const doTest = async () => {
 	try {
-		const result = await $fetch('/api/books/all', {
-			method: 'GET',
-		});
-
+		const result = await $fetch('/api/books/all', { method: 'GET' });
 		console.log(result);
 	} catch (e: any) {
 		console.error('Błąd:', e);

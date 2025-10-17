@@ -1,32 +1,29 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { signupSchema } from '../../../schemas/auth/signup';
-import type { SignupSchema } from '../../../schemas/auth/signup';
+import { signinSchema } from '../../../schemas/auth/signin';
+import type { SigninSchema } from '../../../schemas/auth/signin';
 import type { FormSubmitEvent } from '@nuxt/ui';
 import type { ApiError } from '~~/types/apiError';
 
-const { signUp } = useAuth();
+const { signIn } = useAuth();
 
 const toast = useToast();
 const showPassword = ref(false);
-const showConfirm = ref(false);
 const isMounted = ref(false);
-const isValid = computed(() => signupSchema.safeParse(formData).success);
+const isValid = computed(() => signinSchema.safeParse(formData).success);
 
 onMounted(() => {
 	isMounted.value = true;
 });
 
-const formData = reactive<Partial<SignupSchema>>({
+const formData = reactive<Partial<SigninSchema>>({
 	username: '',
-	email: '',
 	password: '',
-	confirmPassword: '',
 });
 
 const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 	try {
-		await signUp(
+		await signIn(
 			{
 				provider: 'local',
 				payload: {
@@ -35,7 +32,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 			},
 			{
 				external: true,
-				callbackUrl: `http://localhost:3000/?new=true&&username=${event.data.username}`,
+				callbackUrl: `http://localhost:3000/?new=false&&username=${event.data.username}`,
 			}
 		);
 	} catch (error: unknown) {
@@ -54,7 +51,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 
 <template>
 	<UForm
-		:schema="signupSchema"
+		:schema="signinSchema"
 		:state="formData"
 		:disabled="!isMounted"
 		class="space-y-2 w-full"
@@ -66,15 +63,6 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 				v-model="formData.username"
 				placeholder="your name"
 				icon="i-heroicons-user"
-			/>
-		</UFormField>
-
-		<UFormField label="Email" name="email">
-			<UInput
-				class="w-full"
-				v-model="formData.email"
-				placeholder="you@example.com"
-				icon="i-heroicons-envelope"
 			/>
 		</UFormField>
 
@@ -98,26 +86,6 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 			</UInput>
 		</UFormField>
 
-		<UFormField label="Confirm password" name="confirmPassword">
-			<UInput
-				class="w-full"
-				v-model="formData.confirmPassword"
-				:type="showConfirm ? 'text' : 'password'"
-				placeholder="••••••••"
-				icon="i-heroicons-lock-closed"
-				:trailing="true"
-			>
-				<template #trailing>
-					<UButton
-						class="cursor-pointer"
-						variant="link"
-						:icon="showConfirm ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-						@click.prevent="showConfirm = !showConfirm"
-					/>
-				</template>
-			</UInput>
-		</UFormField>
-
 		<UButton
 			:disabled="!isValid"
 			type="submit"
@@ -125,7 +93,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 			icon="i-heroicons-user-plus"
 			block
 		>
-			Create account
+			Login
 		</UButton>
 	</UForm>
 </template>

@@ -14,13 +14,14 @@ export default defineEventHandler(async (event) => {
 	};
 
 	try {
-		const res = await $fetch(createBaseApiUrl('auth/login'), {
+		return await $fetch(createBaseApiUrl('auth/login'), {
 			method: 'POST',
 			body,
 		});
-
-		return res;
 	} catch (err: any) {
-		return err;
+		throw createError({
+			statusCode: err?.status || err?.response?.status || 500,
+			statusMessage: err?.data || 'Registration failed',
+		});
 	}
 });
