@@ -1,18 +1,16 @@
-using Microsoft.EntityFrameworkCore;
+using LibraryAPI.Background;
 using LibraryAPI.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using LibraryAPI.Interfaces;
-using Microsoft.OpenApi.Models;
 using LibraryAPI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-// Add services to the container.
 
 builder.Services.AddCors(options =>
 {
@@ -27,11 +25,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-
-
 
 
 builder.Services.AddSwaggerGen(options =>
@@ -65,8 +59,6 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 
-
-
 builder.Services.AddDbContext<DataContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnectionString")));
 
@@ -89,14 +81,15 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
 });
 
-
+builder.Services.AddHostedService<AdminKeyRotator>();
+builder.Services.AddSingleton<AdminKeyRotationCoordinator>();
 builder.Services.AddScoped<IAuthSerivce, AuthService>();
 builder.Services.AddScoped<IAuthorsService, AuthorsService>();
 builder.Services.AddScoped<ICategoriesService,CategoriesService>();
 builder.Services.AddScoped<IBooksService,BooksService>();
 builder.Services.AddScoped<ILoansService,LoansService>();
 builder.Services.AddScoped<IReservationsService, ReservationsService>();
-
+builder.Services.AddSingleton<IAdminKeyService, AdminKeyService>();
 
 var app = builder.Build();
 

@@ -1,6 +1,6 @@
 export default defineNuxtRouteMiddleware((to, from) => {
 	const { status } = useAuth();
-	const publicPaths = ['/', '/auth/sign-in', '/auth/register'];
+	const publicPaths = ['/', '/auth/sign-in', '/auth/sign-up', '/auth/admin/register'];
 
 	if (publicPaths.includes(to.path)) return;
 

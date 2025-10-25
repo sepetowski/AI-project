@@ -98,7 +98,7 @@ namespace LibraryAPI.Services
 
 
             var tokenExpires = DateTime.Now.AddMinutes(60);
-            var newAccessToken = GenerateJwtToken(tokenExpires, user.Username, user.Email, user.Role.UserRole);
+            var newAccessToken = GenerateJwtToken(user, tokenExpires);
 
             var newRefreshToken = CreateRandomToken();
             var newRefreshTokenExpires = DateTime.Now.AddDays(1);
@@ -131,7 +131,7 @@ namespace LibraryAPI.Services
 
 
             var tokenExpires = DateTime.Now.AddMinutes(60);
-            string token = GenerateJwtToken(tokenExpires, userExist.Username, userExist.Email, userExist.Role.UserRole);
+            string token = GenerateJwtToken(userExist, tokenExpires);
 
             string refreshToken = CreateRandomToken();
             var refresTokenExpires = DateTime.Now.AddDays(1);
@@ -174,43 +174,39 @@ namespace LibraryAPI.Services
 
         private static string CreateRandomToken() =>
             Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
-        
-        private string GenerateJwtToken(DateTime tokenExpires, string username, string email, UserRole userRole)
+
+        private string GenerateJwtToken(User user, DateTime expires)
         {
-            string role = userRole == 0 ? "Admin" : "User";
+            var roleName = user.Role?.UserRole.ToString() ?? "User";
+
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
             {
-                new (ClaimTypes.Name,username),
-                new (ClaimTypes.Email,email),
-                new (ClaimTypes.Role,role)
+                new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+                new(JwtRegisteredClaimNames.UniqueName, user.Username ?? string.Empty),
+
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new(ClaimTypes.Name, user.Username ?? string.Empty),
+                new(ClaimTypes.Email, user.Email ?? string.Empty),
+                new(ClaimTypes.Role, roleName),
+                new(ClaimTypes.GivenName, user.FirstName ?? string.Empty),
+                new(ClaimTypes.Surname, user.LastName ?? string.Empty),
             };
 
-            var secToken = new JwtSecurityToken(
-              _config["Jwt:Issuer"],
-              _config["Jwt:Audience"],
-              claims,
-              null,
-              expires: tokenExpires,
-              signingCredentials: credentials);
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                notBefore: DateTime.UtcNow,
+                expires: expires,
+                signingCredentials: credentials
+            );
 
-            return new JwtSecurityTokenHandler().WriteToken(secToken);
-        }
-
-        private ClaimsPrincipal? GetTokenPrincipal(string token)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var validation = new TokenValidationParameters
-            {
-                IssuerSigningKey = securityKey,
-                ValidateLifetime = false,
-                ValidateActor = false,
-                ValidateIssuer = false,
-                ValidateAudience = false,
-            };
-            return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         public async Task<GetAllUsersResDTO> GetAllUsersAsync()

@@ -14,10 +14,11 @@ export default defineEventHandler(async (event) => {
 	};
 
 	try {
-		return await $fetch(createBaseApiUrl('auth/login'), {
+		var t = await $fetch(createBaseApiUrl('auth/login'), {
 			method: 'POST',
 			body,
 		});
+		return t;
 	} catch (err: any) {
 		throw createError({
 			statusCode: err?.status || err?.response?.status || 500,

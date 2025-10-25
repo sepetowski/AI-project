@@ -1,3 +1,5 @@
+import { Role } from '../../../enums/roles';
+
 export default defineEventHandler(async (event) => {
 	const { payload } = await readBody<{
 		provider: string;
@@ -6,16 +8,20 @@ export default defineEventHandler(async (event) => {
 			email: string;
 			password: string;
 			confirmPassword: string;
+			adminRoleKey?: string;
+			role: Role;
 		};
 	}>(event);
 
-	const { username, email, password, confirmPassword } = payload;
+	const { username, email, password, confirmPassword, role, adminRoleKey } = payload;
 
 	const body = {
 		username,
 		email,
 		password,
 		confirmPassword,
+		role,
+		adminRoleKey: adminRoleKey ?? null,
 	};
 
 	try {
