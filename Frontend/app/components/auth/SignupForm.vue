@@ -6,8 +6,8 @@ import type { FormSubmitEvent } from '@nuxt/ui';
 import type { ApiError } from '~~/types/apiError';
 
 const { signUp } = useAuth();
-
 const toast = useToast();
+const loading = ref(false);
 const showPassword = ref(false);
 const showConfirm = ref(false);
 const isMounted = ref(false);
@@ -26,6 +26,7 @@ const formData = reactive<Partial<SignupSchema>>({
 
 const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 	try {
+		loading.value = true;
 		await signUp(
 			{
 				provider: 'local',
@@ -48,6 +49,8 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 			color: 'error',
 			icon: 'i-heroicons-x-circle',
 		});
+	} finally {
+		loading.value = false;
 	}
 };
 </script>
@@ -120,6 +123,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 
 		<UButton
 			:disabled="!isValid"
+			:loading="loading"
 			type="submit"
 			class="cursor-pointer mt-4"
 			icon="i-heroicons-user-plus"

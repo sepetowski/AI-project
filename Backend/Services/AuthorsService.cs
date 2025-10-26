@@ -102,7 +102,9 @@ namespace LibraryAPI.Services
         public async Task<AddAuthorResDTO?> CreateAuthorAsync(AddAuthorReqDTO req)
         {
             var existingAuthor = await _context.Authors
-                .FirstOrDefaultAsync(a => a.Name == req.Name && a.Surname == req.Surname);
+                .FirstOrDefaultAsync(a =>
+                    a.Name.ToLower() == req.Name.ToLower() &&
+                    a.Surname.ToLower() == req.Surname.ToLower());
 
             if (existingAuthor != null)
                 throw new Exception("This Author already exists in database");

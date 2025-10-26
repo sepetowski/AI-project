@@ -8,7 +8,7 @@ import { Role } from '~~/enums/roles';
 
 const { signUp } = useAuth();
 const toast = useToast();
-
+const loading = ref(false);
 const showPassword = ref(false);
 const showConfirm = ref(false);
 const showKey = ref(false);
@@ -29,6 +29,7 @@ onMounted(() => {
 
 const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 	try {
+		loading.value = true;
 		await signUp(
 			{
 				provider: 'local',
@@ -48,6 +49,8 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 			color: 'error',
 			icon: 'i-heroicons-x-circle',
 		});
+	} finally {
+		loading.value = false;
 	}
 };
 </script>
@@ -139,6 +142,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 		</UFormField>
 
 		<UButton
+			:loading="loading"
 			:disabled="!isValid"
 			type="submit"
 			class="cursor-pointer mt-4"

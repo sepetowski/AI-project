@@ -8,6 +8,7 @@ import type { ApiError } from '~~/types/apiError';
 const { signIn } = useAuth();
 
 const toast = useToast();
+const loading = ref(false);
 const showPassword = ref(false);
 const isMounted = ref(false);
 const isValid = computed(() => signinSchema.safeParse(formData).success);
@@ -23,6 +24,7 @@ const formData = reactive<Partial<SigninSchema>>({
 
 const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 	try {
+		loading.value = true;
 		await signIn(
 			{
 				provider: 'local',
@@ -45,6 +47,8 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 			color: 'error',
 			icon: 'i-heroicons-x-circle',
 		});
+	} finally {
+		loading.value = false;
 	}
 };
 </script>
@@ -87,6 +91,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 		</UFormField>
 
 		<UButton
+			:loading="loading"
 			:disabled="!isValid"
 			type="submit"
 			class="cursor-pointer mt-4"

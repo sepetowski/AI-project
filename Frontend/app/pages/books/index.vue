@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAuthGreeting } from '@/composables/useAuthGreeting';
-const { data, pending, error } = await useApiFetch('/books');
+const { data, pending, error } = await useServerFetch('/books');
 
 useAuthGreeting();
 </script>
