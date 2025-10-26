@@ -35,7 +35,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 			},
 			{
 				external: true,
-				callbackUrl: `http://localhost:3000/?new=true&&username=${event.data.username}`,
+				callbackUrl: `/books?new=true&&username=${event.data.username}`,
 			}
 		);
 	} catch (error: unknown) {

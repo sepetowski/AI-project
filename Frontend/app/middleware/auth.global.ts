@@ -1,10 +1,32 @@
-export default defineNuxtRouteMiddleware((to, from) => {
-	const { status } = useAuth();
-	const publicPaths = ['/', '/auth/sign-in', '/auth/sign-up', '/auth/admin/register'];
+import { Role } from '~~/enums/roles';
+import type { AppSession } from '~~/types/AppSession';
 
-	if (publicPaths.includes(to.path)) return;
+export default defineNuxtRouteMiddleware(async (to) => {
+	const { status, getSession } = useAuth();
 
-	if (status.value === 'unauthenticated') {
-		return navigateTo('/auth/sign-in');
+	const matched = to.matched.length !== 0;
+	if (!matched) {
+		return navigateTo('/not-found');
+	}
+
+	const isPublic = Boolean((to.meta as any).public);
+	const isGuestOnly = Boolean((to.meta as any).guestOnly);
+
+	if (isPublic) return;
+
+	if (isGuestOnly && status.value === 'authenticated') {
+		return navigateTo('/books');
+	}
+
+	if (!isGuestOnly && status.value === 'unauthenticated') {
+		return navigateTo({ path: '/auth/sign-in', query: { redirect: to.fullPath } });
+	}
+
+	const requiredRole = (to.meta as any).role as Role | undefined;
+	if (requiredRole !== undefined) {
+		const session = (await getSession()) as AppSession | null;
+		if (session?.user?.role !== requiredRole) {
+			return navigateTo('/books');
+		}
 	}
 });

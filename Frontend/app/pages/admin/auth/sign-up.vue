@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import SignupAdminForm from '~/components/auth/SignupAdminForm.vue';
 
-definePageMeta({
-	middleware: ['guest'],
-});
+definePageMeta({ guestOnly: true });
 </script>
 
 <template>

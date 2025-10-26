@@ -22,7 +22,9 @@ const items = computed<NavigationMenuItem[]>(() => [
 			<p>OnlineLibrary</p>
 		</template>
 
-		<UNavigationMenu :items="items" />
+		<template v-if="status === 'authenticated'">
+			<UNavigationMenu :items="items" />
+		</template>
 
 		<template #right>
 			<div class="hidden lg:block">
@@ -42,8 +44,16 @@ const items = computed<NavigationMenuItem[]>(() => [
 		</template>
 
 		<template #body>
-			<div class="h-[calc(92.5vh-var(--ui-header-height))] flex flex-col justify-between">
-				<UNavigationMenu :items="items" orientation="vertical" class="-mx-2.5" />
+			<div
+				:class="[
+					'flex flex-col justify-between',
+					status === 'authenticated' ? 'h-[calc(92.5vh-var(--ui-header-height))]' : 'mt-2',
+				]"
+			>
+				<template v-if="status === 'authenticated'">
+					<UNavigationMenu :items="items" orientation="vertical" class="-mx-2.5" />
+				</template>
+
 				<template v-if="status === 'unauthenticated'">
 					<div class="mt-auto">
 						<UButton class="w-full" to="/auth/sign-up">Sign up for free</UButton>

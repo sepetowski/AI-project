@@ -1,3 +1,5 @@
+import { createBaseApiUrl } from '../../../utils/createBaseApiUrl';
+
 export default defineEventHandler(async (event) => {
 	const { refreshToken } = await readBody<{ refreshToken?: string }>(event);
 

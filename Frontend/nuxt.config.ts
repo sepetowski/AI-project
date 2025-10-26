@@ -5,8 +5,10 @@ export default defineNuxtConfig({
 	css: ['~/css/main.css'],
 
 	runtimeConfig: {
-		dotnet: {
-			baseUrl: 'http://localhost:7100/api',
+		public: {
+			api: {
+				baseUrl: 'http://localhost:7100/api',
+			},
 		},
 	},
 

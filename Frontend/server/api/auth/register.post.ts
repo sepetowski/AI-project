@@ -1,4 +1,5 @@
 import { Role } from '../../../enums/roles';
+import { createBaseApiUrl } from '../../../utils/createBaseApiUrl';
 
 export default defineEventHandler(async (event) => {
 	const { payload } = await readBody<{

@@ -32,7 +32,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 			},
 			{
 				external: true,
-				callbackUrl: `http://localhost:3000/?new=false&&username=${event.data.username}`,
+				callbackUrl: `/books?new=false&&username=${event.data.username}`,
 			}
 		);
 	} catch (error: unknown) {

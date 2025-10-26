@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import SigninForm from '~/components/auth/SigninForm.vue';
 
-definePageMeta({
-	middleware: ['guest'],
-});
+definePageMeta({ guestOnly: true });
 </script>
 
 <template>
