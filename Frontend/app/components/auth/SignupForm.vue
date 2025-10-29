@@ -3,7 +3,7 @@ import { reactive } from 'vue';
 import { signupSchema } from '../../../schemas/auth/signup';
 import type { SignupSchema } from '../../../schemas/auth/signup';
 import type { FormSubmitEvent } from '@nuxt/ui';
-import type { ApiError } from '~~/types/apiError';
+import type { ApiError } from '~~/types/ApiError';
 
 const { signUp } = useAuth();
 const toast = useToast();

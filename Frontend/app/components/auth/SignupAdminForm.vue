@@ -3,7 +3,7 @@ import { reactive, ref, computed, onMounted } from 'vue';
 import { signupSchema } from '../../../schemas/auth/signup';
 import type { SignupSchema } from '../../../schemas/auth/signup';
 import type { FormSubmitEvent } from '@nuxt/ui';
-import type { ApiError } from '~~/types/apiError';
+import type { ApiError } from '~~/types/ApiError';
 import { Role } from '~~/enums/roles';
 
 const { signUp } = useAuth();

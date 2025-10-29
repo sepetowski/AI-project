@@ -1,6 +1,6 @@
 import type { NitroFetchRequest, NitroFetchOptions } from 'nitropack';
 import { ref, unref } from 'vue';
-import type { ApiError } from '~~/types/apiError';
+import type { ApiError } from '~~/types/ApiError';
 import { createBaseApiUrl } from '~~/utils/createBaseApiUrl';
 import type { ApiFetchOptions } from '../../types/ApiFetch';
 

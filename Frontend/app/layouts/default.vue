@@ -1,19 +1,13 @@
-<!-- layouts/default.vue -->
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
-import type { NavigationMenuItem } from '@nuxt/ui';
-
 const { status, signOut } = useAuth();
-const route = useRoute();
-const items = computed<NavigationMenuItem[]>(() => [
-	{
-		label: 'Books',
-		to: '/docs/getting-started',
-		icon: 'i-lucide-book-open',
-		active: route.path.startsWith('/docs/getting-started'),
-	},
-]);
+const items = await useNavRoutes();
+const router = useRouter();
+
+watch(status, (newStatus) => {
+	if (newStatus === 'unauthenticated') {
+		router.push('/');
+	}
+});
 </script>
 
 <template>
@@ -64,17 +58,7 @@ const items = computed<NavigationMenuItem[]>(() => [
 				</template>
 
 				<template v-else-if="status === 'authenticated'">
-					<UButton
-						class="w-full"
-						color="neutral"
-						variant="soft"
-						@click="
-							signOut({
-								external: true,
-								callbackUrl: `http://localhost:3000`,
-							})
-						"
-					>
+					<UButton class="w-full" color="neutral" variant="soft" @click="signOut()">
 						Logout
 					</UButton>
 				</template>
