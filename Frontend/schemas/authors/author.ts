@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const newAuthorSchema = z.object({
+export const authorSchema = z.object({
 	name: z
 		.string()
 		.nonempty({ message: 'Name is required' })
@@ -19,4 +19,4 @@ export const newAuthorSchema = z.object({
 	dateOfBirth: z.string().optional(),
 });
 
-export type NewAuthorSchema = z.output<typeof newAuthorSchema>;
+export type AuthorSchema = z.output<typeof authorSchema>;

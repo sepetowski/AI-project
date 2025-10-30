@@ -4,8 +4,8 @@ namespace LibraryAPI.Models.DTO.Categories
 {
     public class UpdateCategoryReqDTO
     {
-      
-        [Required]
+
+        [MinLength(4), MaxLength(50), Required]
         public string Name { get; set; }
     }
 }

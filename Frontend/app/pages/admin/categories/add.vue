@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Role } from '~~/enums/roles';
-import AuthorForm from '../../../components/author/AuthorForm.vue';
+import CategoryForm from '../../../components/categories/CategoryForm.vue';
 
 definePageMeta({ role: Role.Admin });
 </script>
 
 <template>
-	<AuthorForm />
+	<CategoryForm />
 </template>

@@ -19,4 +19,13 @@ export const ADMIN: NavigationMenuItem[] = [
 			{ label: 'Add', to: '/admin/books/add', icon: 'i-lucide-plus' },
 		],
 	},
+	{
+		label: 'Categories',
+		icon: 'i-lucide-book-open',
+		to: '/categories',
+		children: [
+			{ label: 'Manage', to: '/admin/categories/manage', icon: 'i-lucide-table-2' },
+			{ label: 'Add', to: '/admin/categories/add', icon: 'i-lucide-plus' },
+		],
+	},
 ];
