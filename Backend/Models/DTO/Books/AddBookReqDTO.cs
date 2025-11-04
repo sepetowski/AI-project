@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 
 namespace LibraryAPI.Models.DTO.Books
 {
@@ -7,12 +6,16 @@ namespace LibraryAPI.Models.DTO.Books
     {
         [Required]
         public Guid AuthorId { get; set; }
+
         [Required]
-        public string BookDescripton { get; set; }
+        public string BookDescripton { get; set; } = string.Empty;
+
         [Required]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
+
         [Required,Range(1,5000)]
         public int NumberOfPage { get; set; }
+
         [Required]
         public  DateTime PublicationDate { get; set; }
 
