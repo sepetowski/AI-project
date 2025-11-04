@@ -75,7 +75,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 			<template #header>
 				<div class="text-center space-y-1">
 					<h1 class="text-2xl font-semibold">
-						{{ isEdit ? `Edit ${initialData?.name} ${initialData?.surname}` : 'Add new Author' }}
+						{{ isEdit ? `Edit Author` : 'Add new Author' }}
 					</h1>
 				</div>
 			</template>

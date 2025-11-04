@@ -21,8 +21,26 @@ export function useServerFetch<T = unknown>(
 	const res = useFetch(createBaseApiUrl(url as string), {
 		...options,
 		headers,
-		onResponseError: (ctx) => {
-			if (typeof userOnResponseError === 'function') userOnResponseError(ctx);
+		// ważne: async, żeby móc awaitować navigateTo
+		onResponseError: async (ctx) => {
+			// Pozwól użytkownikowi wykonać własny handler (jeśli zdefiniowany)
+			if (typeof userOnResponseError === 'function') {
+				try {
+					await userOnResponseError(ctx as any);
+				} catch {
+					// ignorujemy błędy z user handlera
+				}
+			}
+
+			const status =
+				(ctx.response as any)?.status ??
+				(ctx.error as any)?.statusCode ??
+				(ctx.error as any)?.status;
+
+			if (status === 404) {
+				await navigateTo('/not-found', { replace: true });
+				return;
+			}
 
 			const msg =
 				(ctx.response as any)?._data?.message ??
