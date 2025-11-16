@@ -10,6 +10,9 @@ namespace LibraryAPI.Models.DTO.Books
         public Guid Id { get; set; }
 
         [Required]
+        public Guid AuthorId { get; set; }
+
+        [Required]
         public string Title { get; set; }
 
         [Required]

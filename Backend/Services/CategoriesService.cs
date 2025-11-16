@@ -67,6 +67,21 @@ namespace LibraryAPI.Services
             };
         }
 
+
+        public async Task<CategoryDTO?> GetCategoryAsync(Guid id)
+        {
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+            if (category == null) return null;
+
+            return new CategoryDTO
+            {
+                Id = category.Id,
+                Name = category.Name
+            };
+        }
+
+
+
         public async Task<UpdateCategoryResDTO?> UpdateCategoryAsync(Guid id, UpdateCategoryReqDTO category)
         {
             var exisitngCategory = await _context.Categories.FindAsync(id) ?? throw new Exception("Category not found");

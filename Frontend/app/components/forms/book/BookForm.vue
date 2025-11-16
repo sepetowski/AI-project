@@ -2,24 +2,14 @@
 import { reactive, ref, computed, watch, onMounted } from 'vue';
 import type { FormSubmitEvent } from '@nuxt/ui';
 import { useClientFetch } from '#imports';
-import { bookSchema } from '../../../schemas/books/book';
-import type { BookSchema } from '../../../schemas/books/book';
+import { bookSchema } from '../../../../schemas/books/book';
+import type { BookSchema } from '../../../../schemas/books/book';
 import type { AuthorsRes } from '~~/types/Author';
 import type { CategoriesRes } from '~~/types/Category';
-
-type BookInitial = {
-	id: string;
-	authorId: string;
-	bookDescripton: string;
-	title: string;
-	numberOfPage: number;
-	publicationDate: string;
-	availableCopies: number;
-	categoriesIds: string[];
-};
+import type { BookDetails } from '~~/types/Book';
 
 const { initialData, isEdit } = defineProps<{
-	initialData?: Partial<BookInitial>;
+	initialData?: BookDetails;
 	isEdit?: boolean;
 }>();
 
@@ -45,6 +35,7 @@ const formData = reactive({
 type Option = { label: string; value: string };
 const authorOptions = ref<Option[]>([]);
 const categoryOptions = ref<Option[]>([]);
+const removeExistingImage = ref(false);
 
 const fetchAuthors = async () => {
 	const { data } = await useClientFetch<AuthorsRes>('/authors');
@@ -76,7 +67,25 @@ onMounted(async () => {
 watch(
 	() => initialData,
 	(newVal) => {
-		if (newVal) Object.assign(formData, newVal);
+		if (!newVal) return;
+
+		formData.authorId = newVal.authorId;
+		formData.title = newVal.title;
+		formData.bookDescripton = newVal.bookDescripton;
+		formData.numberOfPage = newVal.numberOfPage;
+		formData.availableCopies = newVal.availableCopies ?? '';
+		formData.categoriesIds = (newVal.categories ?? []).map((c) => c.id);
+
+		if (newVal.publicationDate) {
+			formData.publicationDate = newVal.publicationDate.split('T')[0] ?? '';
+		} else {
+			formData.publicationDate = '';
+		}
+
+		if (newVal.imageUrl) {
+			previewUrl.value = newVal.imageUrl;
+			removeExistingImage.value = false;
+		}
 	},
 	{ immediate: true }
 );
@@ -164,14 +173,20 @@ const onFileChange = (e: Event) => {
 const clearImage = () => {
 	formData.imageFile = null;
 	imageError.value = null;
+	if (previewUrl.value) {
+		URL.revokeObjectURL(previewUrl.value);
+	}
+	previewUrl.value = null;
+	removeExistingImage.value = true;
 };
-
 const onSubmit = async (event: FormSubmitEvent<BookSchema>) => {
 	loading.value = true;
 	const path = isEdit ? '/books/updateBook' : '/books/addBook';
 	const title = isEdit ? 'Book was edited' : 'Book was added';
 
 	const fd = new FormData();
+	if (isEdit) fd.append('Id', initialData?.id ?? '');
+
 	fd.append('AuthorId', event.data.authorId);
 	fd.append('Title', event.data.title);
 	fd.append('BookDescripton', event.data.bookDescripton);
@@ -179,7 +194,12 @@ const onSubmit = async (event: FormSubmitEvent<BookSchema>) => {
 	fd.append('PublicationDate', event.data.publicationDate);
 	fd.append('AvailableCopies', String(event.data.availableCopies));
 	for (const id of event.data.categoriesIds ?? []) fd.append('CategoriesIds', id);
-	if (formData.imageFile) fd.append('ImageFile', formData.imageFile);
+
+	if (formData.imageFile) {
+		fd.append('ImageFile', formData.imageFile);
+	} else if (isEdit && removeExistingImage.value) {
+		fd.append('DeleteFile', 'true');
+	}
 
 	const { error } = await useClientFetch(path, {
 		method: 'POST',
@@ -193,7 +213,7 @@ const onSubmit = async (event: FormSubmitEvent<BookSchema>) => {
 		},
 	});
 
-	if (!error.value) resetForm();
+	if (!error.value && !isEdit) resetForm();
 
 	loading.value = false;
 };

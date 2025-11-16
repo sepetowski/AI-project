@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { signinSchema } from '../../../schemas/auth/signin';
-import type { SigninSchema } from '../../../schemas/auth/signin';
+import { signinSchema } from '../../../../schemas/auth/signin';
+import type { SigninSchema } from '../../../../schemas/auth/signin';
 import type { FormSubmitEvent } from '@nuxt/ui';
 import type { ApiError } from '~~/types/ApiError';
 

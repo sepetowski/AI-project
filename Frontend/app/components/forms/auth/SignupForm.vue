@@ -1,30 +1,27 @@
 <script setup lang="ts">
-import { reactive, ref, computed, onMounted } from 'vue';
-import { signupSchema } from '../../../schemas/auth/signup';
-import type { SignupSchema } from '../../../schemas/auth/signup';
+import { reactive } from 'vue';
+import { signupSchema } from '../../../../schemas/auth/signup';
+import type { SignupSchema } from '../../../../schemas/auth/signup';
 import type { FormSubmitEvent } from '@nuxt/ui';
 import type { ApiError } from '~~/types/ApiError';
-import { Role } from '~~/enums/roles';
 
 const { signUp } = useAuth();
 const toast = useToast();
 const loading = ref(false);
 const showPassword = ref(false);
 const showConfirm = ref(false);
-const showKey = ref(false);
 const isMounted = ref(false);
-const formData = reactive<Partial<SignupSchema>>({
-	username: '',
-	email: '',
-	password: '',
-	role: Role.Admin,
-	adminRoleKey: '',
-	confirmPassword: '',
-});
 const isValid = computed(() => signupSchema.safeParse(formData).success);
 
 onMounted(() => {
 	isMounted.value = true;
+});
+
+const formData = reactive<Partial<SignupSchema>>({
+	username: '',
+	email: '',
+	password: '',
+	confirmPassword: '',
 });
 
 const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
@@ -33,7 +30,9 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 		await signUp(
 			{
 				provider: 'local',
-				payload: { ...event.data },
+				payload: {
+					...event.data,
+				},
 			},
 			{
 				external: true,
@@ -43,6 +42,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 	} catch (error: unknown) {
 		const e = error as ApiError;
 		const msg = e?.data?.message ?? 'Something went wrong';
+
 		toast.add({
 			title: 'Oops!',
 			description: msg,
@@ -121,35 +121,15 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 			</UInput>
 		</UFormField>
 
-		<UFormField label="Admin Key" name="adminRoleKey">
-			<UInput
-				class="w-full"
-				v-model="formData.adminRoleKey"
-				:type="showKey ? 'text' : 'password'"
-				placeholder="••••••••"
-				icon="i-heroicons-lock-closed"
-				:trailing="true"
-			>
-				<template #trailing>
-					<UButton
-						class="cursor-pointer"
-						variant="link"
-						:icon="showKey ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-						@click.prevent="showKey = !showKey"
-					/>
-				</template>
-			</UInput>
-		</UFormField>
-
 		<UButton
-			:loading="loading"
 			:disabled="!isValid"
+			:loading="loading"
 			type="submit"
 			class="cursor-pointer mt-4"
 			icon="i-heroicons-user-plus"
 			block
 		>
-			Create Admin account
+			Create account
 		</UButton>
 	</UForm>
 </template>

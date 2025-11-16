@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted } from 'vue';
-import { categorySchema } from '../../../schemas/category/category';
+import { categorySchema } from '../../../../schemas/category/category';
 import { useClientFetch } from '#imports';
-import type { CategorySchema } from '../../../schemas/category/category';
+import type { CategorySchema } from '../../../../schemas/category/category';
 import type { FormSubmitEvent } from '@nuxt/ui';
-import type { Category } from '../../../types/Category';
+import type { Category } from '../../../../types/Category';
 
 const { initialData, isEdit } = defineProps<{
 	initialData?: Category;
@@ -26,11 +26,12 @@ onMounted(() => {
 watch(
 	() => initialData,
 	(newVal) => {
-		if (newVal) Object.assign(formData, newVal);
+		if (newVal) {
+			formData.name = newVal.name ?? '';
+		}
 	},
 	{ immediate: true }
 );
-
 const resetForm = () => {
 	formData.name = '';
 };
@@ -38,6 +39,7 @@ const resetForm = () => {
 const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 	loading.value = true;
 	const path = isEdit ? `/categories/${initialData?.id}` : '/categories';
+	const title = isEdit ? 'Category was edited' : 'Category was added';
 
 	const { error } = await useClientFetch(path, {
 		method: isEdit ? 'PUT' : 'POST',
@@ -47,13 +49,13 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 		successToast: {
 			showToastOnSuccess: true,
 			toast: {
-				title: 'Category was added',
+				title,
 				desc: `${event.data.name}`,
 			},
 		},
 	});
 
-	if (!error.value) resetForm();
+	if (!error.value && !isEdit) resetForm();
 
 	loading.value = false;
 };

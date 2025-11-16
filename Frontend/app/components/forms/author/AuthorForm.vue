@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted } from 'vue';
-import { authorSchema } from '../../../schemas/authors/author';
+import { authorSchema } from '../../../../schemas/authors/author';
 import { useClientFetch } from '#imports';
-import type { AuthorSchema } from '../../../schemas/authors/author';
+import type { AuthorSchema } from '../../../../schemas/authors/author';
 import type { FormSubmitEvent } from '@nuxt/ui';
-import type { Author } from '../../../types/Author';
+import type { Author } from '../../../../types/Author';
 
 const { initialData, isEdit } = defineProps<{
 	initialData?: Author;
@@ -37,7 +37,14 @@ const resetForm = () => {
 watch(
 	() => initialData,
 	(newVal) => {
-		if (newVal) Object.assign(formData, newVal);
+		if (newVal) {
+			formData.name = newVal.name ?? '';
+			formData.surname = newVal.surname ?? '';
+			formData.description = newVal.description ?? '';
+			formData.dateOfBirth = newVal.dateOfBirth ?? undefined;
+		} else {
+			resetForm();
+		}
 	},
 	{ immediate: true }
 );
@@ -45,6 +52,7 @@ watch(
 const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 	loading.value = true;
 	const path = isEdit ? `/authors/${initialData?.id}` : '/authors';
+	const title = isEdit ? 'Author was edited' : 'Author was added';
 
 	const { error } = await useClientFetch(path, {
 		method: isEdit ? 'PUT' : 'POST',
@@ -57,13 +65,13 @@ const onSubmit = async (event: FormSubmitEvent<typeof formData>) => {
 		successToast: {
 			showToastOnSuccess: true,
 			toast: {
-				title: 'Author was added',
+				title,
 				desc: `${event.data.name} ${event.data.surname}`,
 			},
 		},
 	});
 
-	if (!error.value) resetForm();
+	if (!error.value && !isEdit) resetForm();
 
 	loading.value = false;
 };

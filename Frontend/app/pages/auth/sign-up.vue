@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SignupForm from '~/components/auth/SignupForm.vue';
+import SignupForm from '~/components/forms/auth/SignupForm.vue';
 
 definePageMeta({ guestOnly: true });
 </script>

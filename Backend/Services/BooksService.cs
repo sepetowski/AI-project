@@ -148,16 +148,20 @@ namespace LibraryAPI.Services
         public async Task<UpdateBookResDTO?> UpdateBookAsync(UpdateBookReqDTO req)
         {
             var book = await _context.Books
-              .Include(b => b.Author)
-              .Include(b => b.Categories)
-              .FirstOrDefaultAsync(b => b.Id == req.Id) ?? throw new Exception("Book not found");
+                .Include(b => b.Author)
+                .Include(b => b.Categories)
+                .FirstOrDefaultAsync(b => b.Id == req.Id)
+                ?? throw new Exception("Book not found");
 
             var existingBook = await _context.Books
-                .FirstOrDefaultAsync(b => b.Title == req.Title && b.AuthorId == book.AuthorId && b.Id != req.Id);
+                .FirstOrDefaultAsync(b => b.Title == req.Title
+                                       && b.AuthorId == req.AuthorId
+                                       && b.Id != req.Id);
 
+            if (existingBook != null)
+                throw new Exception("This book already exist");
 
-            if (existingBook != null) throw new Exception("This book already exist");
-
+            book.AuthorId = req.AuthorId;
             book.Title = req.Title;
             book.BookDescripton = req.BookDescripton;
             book.NumberOfPage = req.NumberOfPage;
@@ -166,13 +170,11 @@ namespace LibraryAPI.Services
 
             if (req.ImageFile != null)
             {
-
                 var urlFilePath = await UpdateBookImageAsync(book.Id, req.ImageFile);
                 book.ImageUrl = urlFilePath;
             }
             else if (req.ImageFile == null && req.DeleteFile)
             {
-
                 string imagesDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "Images");
                 var existingFiles = Directory.GetFiles(imagesDirectory, $"{book.Id}.*");
 
@@ -184,14 +186,17 @@ namespace LibraryAPI.Services
                 book.ImageUrl = null;
             }
 
-            var categories = await _context.Categories.Where(c => req.CategoriesIds.Contains(c.Id)).ToListAsync();
-            book.Categories.Clear();
-
             if (req.CategoriesIds != null)
+            {
+                var categories = await _context.Categories
+                    .Where(c => req.CategoriesIds.Contains(c.Id))
+                    .ToListAsync();
+
+                book.Categories.Clear();
+
                 foreach (var category in categories)
-                {
                     book.Categories.Add(category);
-                }
+            }
 
             await _context.SaveChangesAsync();
 

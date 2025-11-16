@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using LibraryAPI.Interfaces;
 using LibraryAPI.Models.DTO.Categories;
@@ -19,7 +18,6 @@ namespace LibraryAPI.Controllers
         }
 
 
-
         [HttpGet()]
         [Authorize]
         public async Task<IActionResult> GetAll()
@@ -28,6 +26,18 @@ namespace LibraryAPI.Controllers
 
             return Ok(res);
         }
+
+        [HttpGet()]
+        [Route("{id:Guid}")]
+        [Authorize]
+        public async Task<IActionResult> GetCategory([FromRoute] Guid id)
+        {
+            var res = await _categoriesService.GetCategoryAsync(id);
+            if (res == null) return BadRequest("Category not found");
+
+            return Ok(res);
+        }
+
 
 
         [HttpPost]

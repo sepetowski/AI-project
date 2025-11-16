@@ -9,5 +9,6 @@ namespace LibraryAPI.Interfaces
         Task<DeleteCategoryResDTO?> DeleteCategoryAsync(Guid id);
         Task<GetAllCategoriesResDTO> GetAllCategoriesAsync();
         Task<UpdateCategoryResDTO?> UpdateCategoryAsync(Guid id, UpdateCategoryReqDTO category);
+        Task<CategoryDTO?> GetCategoryAsync(Guid id);
     }
 }
