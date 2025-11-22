@@ -67,7 +67,9 @@ watch(status, (newStatus) => {
 	</UHeader>
 
 	<UMain>
-		<slot />
+		<main class="w-full max-w-7xl mx-auto p-4">
+			<slot />
+		</main>
 	</UMain>
 
 	<UFooter />

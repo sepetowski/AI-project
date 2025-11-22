@@ -1,13 +1,23 @@
 <script setup lang="ts">
 import { useAuthGreeting } from '@/composables/useAuthGreeting';
-const { data, pending, error } = await useServerFetch('/books');
+import BookList from '~/components/lists/BookList.vue';
+import type { BooksRes } from '~~/types/Book';
+const { data, refresh } = await useServerFetch<BooksRes>('/books');
 
 useAuthGreeting();
 </script>
 
 <template>
-	<div>
-		<p v-if="pending">Ładowanie danych...</p>
-		<p v-else-if="error">Błąd: {{ error.message }}</p>
+	<div v-if="data && data.amount > 0">
+		<BookList :books="data.books" />
+	</div>
+
+	<div v-else>
+		<EmptyState
+			title="No books"
+			description="There are no books. Try to refresh"
+			:on-refresh="refresh"
+			icon="i-heroicons-book-open"
+		/>
 	</div>
 </template>

@@ -1,6 +1,28 @@
-<!-- components/shared/EmptyState.vue -->
+<script setup>
+import { ref, computed } from 'vue';
+
+const props = defineProps({
+	title: { type: String, required: true },
+	description: { type: String, default: '' },
+	onRefresh: { type: Function, default: null },
+	icon: { type: String, default: 'i-heroicons-document-text' },
+});
+
+const isRefreshing = ref(false);
+const iconName = computed(() => props.icon || 'i-heroicons-document-text');
+
+async function handleRefresh() {
+	if (!props.onRefresh || isRefreshing.value) return;
+	try {
+		isRefreshing.value = true;
+		await props.onRefresh();
+	} finally {
+		isRefreshing.value = false;
+	}
+}
+</script>
+
 <template>
-	<!-- Wyśrodkowany kontener -->
 	<div class="w-full min-h-[300px] flex items-center justify-center py-10 px-4">
 		<UCard class="max-w-md w-full text-center">
 			<div class="flex flex-col items-center">
@@ -38,27 +60,3 @@
 		</UCard>
 	</div>
 </template>
-
-<script setup>
-import { ref, computed } from 'vue';
-
-const props = defineProps({
-	title: { type: String, required: true },
-	description: { type: String, default: '' },
-	onRefresh: { type: Function, default: null },
-	icon: { type: String, default: 'i-heroicons-document-text' },
-});
-
-const isRefreshing = ref(false);
-const iconName = computed(() => props.icon || 'i-heroicons-document-text');
-
-async function handleRefresh() {
-	if (!props.onRefresh || isRefreshing.value) return;
-	try {
-		isRefreshing.value = true;
-		await props.onRefresh();
-	} finally {
-		isRefreshing.value = false;
-	}
-}
-</script>
