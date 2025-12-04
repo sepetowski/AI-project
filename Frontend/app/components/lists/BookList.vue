@@ -81,10 +81,8 @@ const paginatedBooks = computed(() => {
 
 <template>
 	<div class="space-y-12 mt-4">
-		<!-- Filters -->
 		<div class="flex flex-wrap gap-3 items-center justify-between">
 			<div class="flex flex-wrap gap-3 items-center">
-				<!-- Search by title/author -->
 				<UInput
 					v-model="search"
 					placeholder="Search by title or author..."
@@ -114,7 +112,7 @@ const paginatedBooks = computed(() => {
 		>
 			<BookCard v-for="book in paginatedBooks" :key="book.id" :book="book" />
 		</div>
-		<div v-else class="py-10 text-center text-sm text-gray-400">No books match your filters.</div>
+		<div v-else class="py-10 text-center text-sm text-accent">No books match your filters.</div>
 		<div v-if="totalPages > 1" class="flex justify-center pt-4">
 			<UPagination v-model="page" :page-count="pageSize" :total="filteredBooks.length" size="sm" />
 		</div>

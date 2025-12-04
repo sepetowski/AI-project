@@ -69,7 +69,7 @@ const publicationYear = computed(() => {
 				<h1 class="font-bold text-3xl">
 					{{ book.title }}
 				</h1>
-				<h2 class="md:text-lg font-semibold text-neutral-400">
+				<h2 class="md:text-lg font-semibold text-dimmed">
 					{{ book.authorName }} {{ book.authorSurname }}
 				</h2>
 
@@ -88,26 +88,26 @@ const publicationYear = computed(() => {
 					</div>
 				</div>
 
-				<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-sm text-gray-400">
+				<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-sm">
 					<div v-if="publicationYear">
-						<span class="font-semibold text-gray-200">Year:</span>
+						<span class="font-semibold">Year:</span>
 						<span class="ml-1">{{ publicationYear }}</span>
 					</div>
 
 					<div v-if="book.publicationDate">
-						<span class="font-semibold text-gray-200">Publication date:</span>
+						<span class="font-semibold">Publication date:</span>
 						<span class="ml-1">
 							{{ new Date(book.publicationDate).toISOString().slice(0, 10) }}
 						</span>
 					</div>
 
 					<div v-if="book.numberOfPage">
-						<span class="font-semibold text-gray-200">Pages:</span>
+						<span class="font-semibold">Pages:</span>
 						<span class="ml-1">{{ book.numberOfPage }}</span>
 					</div>
 
 					<div v-if="book.availableCopies !== null">
-						<span class="font-semibold text-gray-200">Available copies:</span>
+						<span class="font-semibold">Available copies:</span>
 						<span class="ml-1">{{ book.availableCopies }}</span>
 					</div>
 				</div>
@@ -128,12 +128,12 @@ const publicationYear = computed(() => {
 				<div v-if="book.authorDescription || book.authorDateOfBirth" class="mt-8 space-y-2">
 					<h3 class="text-lg font-semibold">About the author</h3>
 
-					<p v-if="book.authorDateOfBirth" class="text-sm text-gray-300">
+					<p v-if="book.authorDateOfBirth" class="text-sm">
 						<span class="font-semibold">Date of birth:</span>
 						<span class="ml-1">{{ book.authorDateOfBirth }}</span>
 					</p>
 
-					<p v-if="book.authorDescription" class="text-sm text-gray-300 whitespace-pre-line">
+					<p v-if="book.authorDescription" class="text-sm whitespace-pre-line">
 						{{ book.authorDescription }}
 					</p>
 				</div>
