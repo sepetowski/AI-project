@@ -28,4 +28,14 @@ export const ADMIN: NavigationMenuItem[] = [
 			{ label: 'Add', to: '/admin/categories/add', icon: 'i-lucide-plus' },
 		],
 	},
+	{
+		label: 'System',
+		icon: 'i-lucide-book-open',
+		children: [
+			{ label: 'Reservations', to: '/admin/reservations/manage', icon: 'i-lucide-table-2' },
+			{ label: 'Loans', to: '/admin/loans/manage', icon: 'i-lucide-plus' },
+			{ label: 'Users', to: '/admin/users/manage', icon: 'i-lucide-plus' },
+			{ label: 'Keys', to: '/admin/keys', icon: 'i-lucide-plus' },
+		],
+	},
 ];
