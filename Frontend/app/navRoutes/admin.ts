@@ -35,7 +35,7 @@ export const ADMIN: NavigationMenuItem[] = [
 			{ label: 'Reservations', to: '/admin/reservations/manage', icon: 'i-lucide-table-2' },
 			{ label: 'Loans', to: '/admin/loans/manage', icon: 'i-lucide-plus' },
 			{ label: 'Users', to: '/admin/users/manage', icon: 'i-lucide-plus' },
-			{ label: 'Keys', to: '/admin/keys', icon: 'i-lucide-plus' },
+			{ label: 'Keys', to: '/admin/keys/manage', icon: 'i-lucide-plus' },
 		],
 	},
 ];
