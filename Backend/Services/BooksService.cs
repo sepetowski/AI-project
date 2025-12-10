@@ -32,7 +32,7 @@ namespace LibraryAPI.Services
             var booksWithAuthorsAndCategories = books.Select(book =>
             {
                 var activeReservationsCount = book.Reservations.Count(r => r.IsActive);
-                var isAvaible = book.AvailableCopies > 0 && activeReservationsCount < book.AvailableCopies;
+                var isAvaible = book.AvailableCopies > 0 && activeReservationsCount <= book.AvailableCopies;
 
                 return new BookWithAuthorAndCategoriesDTO
                 {
@@ -69,7 +69,7 @@ namespace LibraryAPI.Services
                 return null;
 
             var activeReservationsCount = book.Reservations.Count(r => r.IsActive);
-            var isAvaible = book.AvailableCopies > 0 && activeReservationsCount < book.AvailableCopies;
+            var isAvaible = book.AvailableCopies > 0 && activeReservationsCount <= book.AvailableCopies;
 
             var bookDetails = new GetBookDetailsResDTO
             {

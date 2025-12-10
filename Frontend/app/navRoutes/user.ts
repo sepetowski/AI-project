@@ -11,4 +11,9 @@ export const USER: NavigationMenuItem[] = [
 		icon: 'i-lucide-book-open',
 		to: '/books',
 	},
+	{
+		label: 'My Account',
+		icon: 'i-lucide-book-open',
+		to: '/my-account',
+	},
 ];

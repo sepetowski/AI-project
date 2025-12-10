@@ -118,10 +118,8 @@ const publicationYear = computed(() => {
 					</p>
 
 					<div v-if="user?.role === Role.User" class="mt-4 flex gap-4 items-center">
-						<UButton :disabled="loading" v-if="book.isAvaible" @click="onLoan"> Loan </UButton>
-						<UButton :disabled="loading" v-if="!book.isAvaible" variant="soft" @click="onReserve">
-							Reserve
-						</UButton>
+						<UButton :disabled="loading" @click="onLoan"> Loan </UButton>
+						<UButton :disabled="loading" color="secondary" @click="onReserve"> Reserve </UButton>
 					</div>
 				</div>
 
