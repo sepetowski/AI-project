@@ -15,6 +15,6 @@ const { data, refresh } = await useServerFetch<ReservationRes>('/reservations');
 	</div>
 
 	<div v-else>
-		<EmptyState title="No reservations" :on-refresh="refresh" icon="i-heroicons-tag" />
+		<EmptyState title="No reservations" :on-refresh="refresh" icon="i-lucide-calendar-check" />
 	</div>
 </template>

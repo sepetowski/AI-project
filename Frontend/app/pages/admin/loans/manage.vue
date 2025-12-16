@@ -15,6 +15,6 @@ const { data, refresh } = await useServerFetch<LoanRes>('/loans');
 	</div>
 
 	<div v-else>
-		<EmptyState title="No reservations" :on-refresh="refresh" icon="i-heroicons-tag" />
+		<EmptyState title="No reservations" :on-refresh="refresh" icon="i-lucide-handshake" />
 	</div>
 </template>

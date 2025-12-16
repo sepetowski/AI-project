@@ -8,12 +8,12 @@ export const USER: NavigationMenuItem[] = [
 	},
 	{
 		label: 'Books',
-		icon: 'i-lucide-book-open',
+		icon: 'i-lucide-book',
 		to: '/books',
 	},
 	{
 		label: 'My Account',
-		icon: 'i-lucide-book-open',
+		icon: 'i-lucide-user-circle',
 		to: '/my-account',
 	},
 ];

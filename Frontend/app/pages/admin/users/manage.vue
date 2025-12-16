@@ -15,6 +15,6 @@ const { data, refresh } = await useServerFetch<AppUserRes>('/auth/getUsers');
 	</div>
 
 	<div v-else>
-		<EmptyState title="No users" :on-refresh="refresh" icon="i-heroicons-tag" />
+		<EmptyState title="No users" :on-refresh="refresh" icon="i-lucide-user-cog" />
 	</div>
 </template>

@@ -21,7 +21,7 @@ defineProps<{
 					</h3>
 					<p class="text-base mt-4">{{ book.authorName }} {{ book.authorSurname }}</p>
 
-					<div class="mt-4 flex flex-wrap gap">
+					<div class="mt-4 flex flex-wrap gap gap-1">
 						<UBadge v-for="cat in book.categories" :key="cat.id" size="sm" variant="soft">
 							{{ cat.name }}
 						</UBadge>
